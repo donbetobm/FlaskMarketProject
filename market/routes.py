@@ -1,7 +1,9 @@
+import re
 from market import app
-from flask import render_template
-from market.models import Item
+from flask import render_template, redirect, url_for
+from market.models import Item, User
 from market.forms import RegisterForm
+from market import db
 
 @app.route('/')
 @app.route('/home')
@@ -13,8 +15,16 @@ def market_page():
     items = Item.query.all()
     return render_template('market.html', items = items)
 
-@app.route('/register')
+@app.route('/register', methods=['GET', 'POST'])
 def register_page():
     #create the instance
     form = RegisterForm()
+    if form.validate_on_submit():
+        #below this if statement, you're going to put what you want to happen when someone hits submit
+        user_to_create = User(username=form.username.data,
+        email_address=form.email_address.data,
+        password_hash=form.password1.data)
+        db.session.add(user_to_create)
+        db.session.commit()
+        return redirect(url_for('market_page'))
     return render_template('register.html', form=form)
