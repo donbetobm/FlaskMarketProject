@@ -1,5 +1,6 @@
 from sqlalchemy.orm import backref
 from market import db
+from market import bycrypt
 
 class User(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
@@ -10,6 +11,13 @@ class User(db.Model):
     #relationship between two tables; lazy allows SQLite to grab all the items related to the user in once
     items = db.relationship('Item', backref='owned_user', lazy=True)
 
+    @property
+    def password(self):
+        return self.password
+
+    @password.setter
+    def password(self, plaint_text_password):
+        self.password_hash = bycrypt.generate_password_hash(plaint_text_password).decode('UTF-8')
 
 class Item(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
