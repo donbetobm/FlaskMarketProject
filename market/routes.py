@@ -23,8 +23,10 @@ def market_page():
             # subtract the current object price from the users object
             current_user.budget -= p_item_object.price
             db.session.commit()
-    items = Item.query.all()
-    return render_template('market.html', items = items, purchase_form = purchase_form)
+            flash(f"Thank you for your purchase {p_item_object.name}")
+    if request.method == 'GET':
+        items = Item.query.filter_by(owner=None)
+        return render_template('market.html', items = items, purchase_form = purchase_form)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register_page():
