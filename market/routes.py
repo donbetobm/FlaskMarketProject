@@ -19,11 +19,13 @@ def market_page():
         purchased_item = request.form.get("purchased_item")
         p_item_object = Item.query.filter_by(name=purchased_item).first()
         if p_item_object:
-            p_item_object.owner = current_user.id
-            # subtract the current object price from the users object
-            current_user.budget -= p_item_object.price
-            db.session.commit()
-            flash(f"Thank you for your purchase {p_item_object.name}")
+            if current_user.can_purchase(p_item_object):
+                p_item_object.buy(current_user)
+                flash(f"Thank you for your purchase {p_item_object.name}", category="success")
+            else:
+                flash("Your founds are not enough to buy this item :(", category="danger")
+            
+            return redirect(url_for('market_page'))
     if request.method == 'GET':
         items = Item.query.filter_by(owner=None)
         return render_template('market.html', items = items, purchase_form = purchase_form)
